@@ -198,15 +198,15 @@ a{ color: inherit; }
 .scatter{
   position: absolute;
   --r: 0deg;
-  transform: rotate(var(--r));
-  filter: drop-shadow(0 8px 12px rgba(40,28,10,0.4));
+  --flip: 1;
+  transform: scaleX(var(--flip)) rotate(var(--r));
   animation: shellDrift 7.5s ease-in-out infinite;
   opacity: 0.94;
 }
 .scatter.sc-front{ opacity: 1; }
 @keyframes shellDrift{
-  0%, 100%{ transform: rotate(var(--r)) translateY(0); }
-  50%{ transform: rotate(calc(var(--r) + 2.4deg)) translateY(-10px); }
+  0%, 100%{ transform: scaleX(var(--flip)) rotate(var(--r)) translateY(0); }
+  50%{ transform: scaleX(var(--flip)) rotate(calc(var(--r) + 2.4deg)) translateY(-10px); }
 }
 
 .hero-heading{

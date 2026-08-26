@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   wireNav();
   wireCopyButtons();
   wireShellPoke();
-  startEarPhysics();
   wireSound();
   spawnFlies();
   loadStats();
@@ -94,7 +93,6 @@ function wireShellPoke() {
     flashTimeout = setTimeout(() => frame.classList.remove("flash"), 150);
 
     playSnap();
-    kickEars();
 
     pokeCount++;
     counter.textContent = `poked ${pokeCount} time${pokeCount === 1 ? "" : "s"} today`;
@@ -107,72 +105,6 @@ function wireShellPoke() {
       poke();
     }
   });
-}
-
-// ---------- shell ear physics — spring-driven, so the chatter never repeats ----------
-// Each ear is a damped spring chasing a slowly drifting "idle sway" target built from
-// a few layered sine waves (different frequencies/phases per ear so they never sync up),
-// plus occasional short amplitude "bursts" for a nervous chatter. A click adds a velocity
-// impulse to both ears in opposite directions — the spring naturally overshoots and rings
-// down, which reads as a much more physical "snap" than a fixed CSS keyframe ever could.
-const EAR_STIFFNESS = 145;
-const EAR_DAMPING = 10.5;
-
-const earState = {
-  left: { angle: 0, vel: 0, phase: Math.random() * 10, sign: -1, burstUntil: 0, nextBurst: 1.5 + Math.random() * 2.5 },
-  right: { angle: 0, vel: 0, phase: Math.random() * 10 + 4, sign: 1, burstUntil: 0, nextBurst: 2.5 + Math.random() * 3 },
-};
-
-function earIdleTarget(state, t) {
-  const sway =
-    Math.sin(t * 0.5 + state.phase) * 1.1 +
-    Math.sin(t * 1.25 + state.phase * 1.6) * 0.5 +
-    Math.sin(t * 2.8 + state.phase * 0.4) * 0.22;
-  const burstActive = t < state.burstUntil;
-  const amp = burstActive ? 3 : 1;
-  return sway * amp * state.sign;
-}
-
-function earUpdateSpring(state, target, dt) {
-  const accel = -EAR_STIFFNESS * (state.angle - target) - EAR_DAMPING * state.vel;
-  state.vel += accel * dt;
-  state.angle += state.vel * dt;
-}
-
-function startEarPhysics() {
-  const earLeftEl = document.getElementById("earLeft");
-  const earRightEl = document.getElementById("earRight");
-  if (!earLeftEl || !earRightEl) return;
-
-  let last = performance.now();
-
-  function step(now) {
-    const dt = Math.min((now - last) / 1000, 0.05);
-    last = now;
-    const t = now / 1000;
-
-    [earState.left, earState.right].forEach((state) => {
-      if (t > state.nextBurst && t > state.burstUntil) {
-        state.burstUntil = t + 0.45 + Math.random() * 0.55;
-        state.nextBurst = t + 4 + Math.random() * 7;
-      }
-    });
-
-    earUpdateSpring(earState.left, earIdleTarget(earState.left, t), dt);
-    earUpdateSpring(earState.right, earIdleTarget(earState.right, t), dt);
-
-    earLeftEl.style.transform = `rotate(${earState.left.angle.toFixed(2)}deg)`;
-    earRightEl.style.transform = `rotate(${earState.right.angle.toFixed(2)}deg)`;
-
-    requestAnimationFrame(step);
-  }
-
-  requestAnimationFrame(step);
-}
-
-function kickEars() {
-  earState.left.vel -= 640;
-  earState.right.vel += 640;
 }
 
 // ---------- sound (ambient buzz + snap click), off by default ----------
@@ -278,14 +210,77 @@ function spawnFlies() {
     flies.push(makeFly(el));
   }
 
+  const updateEyeTracking = makeEyeTracker(flies);
+
   let last = performance.now();
   function tick(now) {
     const dt = Math.min(now - last, 60);
     last = now;
     flies.forEach((f) => f.step(dt));
+    updateEyeTracking();
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
+}
+
+// ---------- eye tracking — the pupil glances toward whichever fly is nearest ----------
+// The pupil is a small separate overlay layered exactly over the painted-on pupil in
+// hero-base.png; the base has that spot filled with the eye-white color, so nudging the
+// overlay a few px reveals a sliver of "sclera" on the trailing edge, just like a real eye.
+function makeEyeTracker(flies) {
+  const pupil = document.getElementById("mascotPupil");
+  const frame = document.getElementById("mascotFrame");
+  if (!pupil || !frame) return () => {};
+
+  // eye center as a fraction of the mascot-frame box (matches the crop used to cut the pupil asset)
+  const EYE_X_FRAC = 0.5573;
+  const EYE_Y_FRAC = 0.3135;
+  // max pupil travel, as a fraction of the frame's own size — stays within the white of the
+  // eye no matter how big/small the mascot renders (mobile vs desktop)
+  const MAX_DX_FRAC = 0.00727;
+  const MAX_DY_FRAC = 0.00502;
+
+  let curDX = 0;
+  let curDY = 0;
+
+  return function update() {
+    const rect = frame.getBoundingClientRect();
+    if (rect.width < 10) return; // frame not laid out / not visible yet
+
+    const eyeX = rect.left + rect.width * EYE_X_FRAC;
+    const eyeY = rect.top + rect.height * EYE_Y_FRAC;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const maxDX = rect.width * MAX_DX_FRAC;
+    const maxDY = rect.height * MAX_DY_FRAC;
+
+    let nearest = null;
+    let nearestDist = Infinity;
+    for (const f of flies) {
+      const p = f.getPos();
+      const sx = p.x;
+      const sy = p.y - scrollY;
+      const d = (sx - eyeX) * (sx - eyeX) + (sy - eyeY) * (sy - eyeY);
+      if (d < nearestDist) {
+        nearestDist = d;
+        nearest = { x: sx, y: sy };
+      }
+    }
+
+    let targetDX = 0;
+    let targetDY = 0;
+    if (nearest) {
+      const dx = nearest.x - eyeX;
+      const dy = nearest.y - eyeY;
+      const dist = Math.hypot(dx, dy) || 1;
+      targetDX = (dx / dist) * maxDX;
+      targetDY = (dy / dist) * maxDY;
+    }
+
+    curDX += (targetDX - curDX) * 0.05;
+    curDY += (targetDY - curDY) * 0.05;
+
+    pupil.style.transform = `translate(${curDX.toFixed(2)}px, ${curDY.toFixed(2)}px)`;
+  };
 }
 
 function makeFly(el) {
@@ -342,7 +337,7 @@ function makeFly(el) {
     el.style.transform = `translate(${pos.x}px, ${screenY}px) rotate(${angle}deg) scale(var(--scale, 1))`;
   }
 
-  return { step };
+  return { step, getPos: () => pos };
 }
 
 // ---------- live stats (Dexscreener) ----------

@@ -173,6 +173,20 @@ a{ color: inherit; }
   margin: 0 0 18px;
 }
 
+.section-scatter{
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  --r: 0deg;
+  --flip: 1;
+  transform: scaleX(var(--flip)) rotate(var(--r));
+  animation: shellDrift 7.5s ease-in-out infinite;
+  opacity: 0.9;
+}
+@media (max-width: 700px){
+  .section-scatter{ display: none; }
+}
+
 /* ---------- hero (full screen) ---------- */
 .hero{
   position: relative;
@@ -261,6 +275,17 @@ a{ color: inherit; }
   width: 21.82%;
   height: 41.54%;
   transform-origin: 45% 92%;
+}
+.mascot-pupil{
+  position: absolute;
+  left: 52.36%;
+  top: 25.08%;
+  width: 6.73%;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  will-change: transform;
+  transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 /* poke feedback: a brightness/saturation pop that follows the cutout's own

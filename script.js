@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   wireNav();
   wireCopyButtons();
   wireShellPoke();
+  startEarPhysics();
   wireSound();
   spawnFlies();
   loadStats();
@@ -80,30 +81,20 @@ function wireNav() {
   );
 }
 
-// ---------- shell poke / chatter ----------
+// ---------- shell poke ----------
 let pokeCount = 0;
 function wireShellPoke() {
   const frame = document.getElementById("mascotFrame");
-  const flash = document.getElementById("crackFlash");
   const counter = document.getElementById("crackCounter");
+  let flashTimeout = null;
 
   function poke() {
-    frame.classList.remove("snap-back");
-    frame.classList.add("snap");
-    flash.classList.remove("flash");
-    void flash.offsetWidth; // restart animation
-    flash.classList.add("flash");
+    frame.classList.add("flash");
+    clearTimeout(flashTimeout);
+    flashTimeout = setTimeout(() => frame.classList.remove("flash"), 150);
 
     playSnap();
-
-    setTimeout(() => {
-      frame.classList.remove("snap");
-      frame.classList.add("snap-back");
-    }, 90);
-
-    setTimeout(() => {
-      frame.classList.remove("snap-back");
-    }, 400);
+    kickEars();
 
     pokeCount++;
     counter.textContent = `poked ${pokeCount} time${pokeCount === 1 ? "" : "s"} today`;
@@ -116,6 +107,72 @@ function wireShellPoke() {
       poke();
     }
   });
+}
+
+// ---------- shell ear physics — spring-driven, so the chatter never repeats ----------
+// Each ear is a damped spring chasing a slowly drifting "idle sway" target built from
+// a few layered sine waves (different frequencies/phases per ear so they never sync up),
+// plus occasional short amplitude "bursts" for a nervous chatter. A click adds a velocity
+// impulse to both ears in opposite directions — the spring naturally overshoots and rings
+// down, which reads as a much more physical "snap" than a fixed CSS keyframe ever could.
+const EAR_STIFFNESS = 145;
+const EAR_DAMPING = 10.5;
+
+const earState = {
+  left: { angle: 0, vel: 0, phase: Math.random() * 10, sign: -1, burstUntil: 0, nextBurst: 1.5 + Math.random() * 2.5 },
+  right: { angle: 0, vel: 0, phase: Math.random() * 10 + 4, sign: 1, burstUntil: 0, nextBurst: 2.5 + Math.random() * 3 },
+};
+
+function earIdleTarget(state, t) {
+  const sway =
+    Math.sin(t * 0.5 + state.phase) * 1.1 +
+    Math.sin(t * 1.25 + state.phase * 1.6) * 0.5 +
+    Math.sin(t * 2.8 + state.phase * 0.4) * 0.22;
+  const burstActive = t < state.burstUntil;
+  const amp = burstActive ? 3 : 1;
+  return sway * amp * state.sign;
+}
+
+function earUpdateSpring(state, target, dt) {
+  const accel = -EAR_STIFFNESS * (state.angle - target) - EAR_DAMPING * state.vel;
+  state.vel += accel * dt;
+  state.angle += state.vel * dt;
+}
+
+function startEarPhysics() {
+  const earLeftEl = document.getElementById("earLeft");
+  const earRightEl = document.getElementById("earRight");
+  if (!earLeftEl || !earRightEl) return;
+
+  let last = performance.now();
+
+  function step(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    const t = now / 1000;
+
+    [earState.left, earState.right].forEach((state) => {
+      if (t > state.nextBurst && t > state.burstUntil) {
+        state.burstUntil = t + 0.45 + Math.random() * 0.55;
+        state.nextBurst = t + 4 + Math.random() * 7;
+      }
+    });
+
+    earUpdateSpring(earState.left, earIdleTarget(earState.left, t), dt);
+    earUpdateSpring(earState.right, earIdleTarget(earState.right, t), dt);
+
+    earLeftEl.style.transform = `rotate(${earState.left.angle.toFixed(2)}deg)`;
+    earRightEl.style.transform = `rotate(${earState.right.angle.toFixed(2)}deg)`;
+
+    requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
+function kickEars() {
+  earState.left.vel -= 640;
+  earState.right.vel += 640;
 }
 
 // ---------- sound (ambient buzz + snap click), off by default ----------
@@ -206,12 +263,16 @@ const FLY_SVG = `
 function spawnFlies() {
   const layer = document.getElementById("fliesLayer");
   const isMobile = window.innerWidth < 700;
-  const count = isMobile ? 8 : 14;
+  const count = isMobile ? 16 : 30;
   const flies = [];
 
   for (let i = 0; i < count; i++) {
     const el = document.createElement("div");
     el.className = "fly";
+    // size variance: a handful of "close" big flies, mostly smaller "far" ones —
+    // reads as a much fuller swarm without every fly looking identical
+    const scale = Math.random() < 0.25 ? 1.3 + Math.random() * 0.5 : 0.65 + Math.random() * 0.55;
+    el.style.setProperty("--scale", scale.toFixed(2));
     el.innerHTML = FLY_SVG;
     layer.appendChild(el);
     flies.push(makeFly(el));
@@ -255,7 +316,7 @@ function makeFly(el) {
   function step(dt) {
     const now = performance.now();
     if (now < pauseUntil) {
-      el.style.transform = `translate(${pos.x}px, ${pos.y - (window.scrollY || 0)}px) rotate(${angle}deg)`;
+      el.style.transform = `translate(${pos.x}px, ${pos.y - (window.scrollY || 0)}px) rotate(${angle}deg) scale(var(--scale, 1))`;
       return;
     }
 
@@ -278,7 +339,7 @@ function makeFly(el) {
     }
 
     const screenY = pos.y - (window.scrollY || window.pageYOffset || 0);
-    el.style.transform = `translate(${pos.x}px, ${screenY}px) rotate(${angle}deg)`;
+    el.style.transform = `translate(${pos.x}px, ${screenY}px) rotate(${angle}deg) scale(var(--scale, 1))`;
   }
 
   return { step };

@@ -173,67 +173,61 @@ a{ color: inherit; }
   margin: 0 0 18px;
 }
 
-/* ---------- hero ---------- */
-.hero{ padding: 26px 16px 40px; }
-.hero-corkboard{
-  max-width: 900px;
-  margin: 0 auto;
+/* ---------- hero (full screen) ---------- */
+.hero{
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 120px 20px 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
-  padding-top: 34px;
-}
-
-.flyer-pin-1{
-  position: absolute;
-  top: 6px; left: 50%;
-  transform: translateX(-50%);
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #e0685a, var(--pin-red) 70%);
-  box-shadow: 0 3px 4px rgba(0,0,0,0.45), inset 0 -2px 3px rgba(0,0,0,0.25);
-  z-index: 5;
-}
-.flyer-tape{
-  position: absolute;
-  width: 70px; height: 26px;
-  background: linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.4));
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-  z-index: 6;
-  opacity: 0.85;
-}
-.flyer-tape-l{ top: 10px; left: 12%; transform: rotate(-18deg); }
-.flyer-tape-r{ top: 10px; right: 12%; transform: rotate(16deg); }
-
-.flyer{
-  background: var(--paper);
-  border-radius: 3px;
-  padding: 26px 26px 20px;
-  width: 100%;
-  max-width: 620px;
-  box-shadow: 0 18px 40px var(--paper-shadow), 0 2px 0 rgba(255,255,255,0.4) inset;
-  transform: rotate(-1.1deg);
-  position: relative;
+  justify-content: center;
   text-align: center;
+  overflow: hidden;
+  isolation: isolate;
 }
-.flyer-heading{
+
+.shell-scatter{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.scatter{
+  position: absolute;
+  --r: 0deg;
+  transform: rotate(var(--r));
+  filter: drop-shadow(0 8px 12px rgba(40,28,10,0.4));
+  animation: shellDrift 7.5s ease-in-out infinite;
+  opacity: 0.94;
+}
+.scatter.sc-front{ opacity: 1; }
+@keyframes shellDrift{
+  0%, 100%{ transform: rotate(var(--r)) translateY(0); }
+  50%{ transform: rotate(calc(var(--r) + 2.4deg)) translateY(-10px); }
+}
+
+.hero-heading{
+  position: relative;
+  z-index: 3;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: clamp(28px, 5vw, 42px);
-  margin: 4px 0 14px;
-  letter-spacing: 0.01em;
+  font-size: clamp(34px, 7vw, 64px);
   color: var(--ink);
+  margin: 0 0 6px;
+  text-shadow: 0 2px 0 rgba(250,244,228,0.5), 0 12px 26px rgba(30,20,5,0.4);
 }
 
 .mascot-frame{
   position: relative;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
+  z-index: 3;
+  width: min(88vw, 760px);
+  margin: 8px auto 0;
   aspect-ratio: 1100 / 638;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 4px;
   overflow: visible;
   outline: none;
 }
@@ -241,15 +235,18 @@ a{ color: inherit; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 2px;
   user-select: none;
   -webkit-user-drag: none;
+  filter: drop-shadow(0 26px 34px rgba(20,14,4,0.4));
+  transition: filter 0.12s ease-out;
 }
 .mascot-ear{
   position: absolute;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+  will-change: transform;
+  transition: filter 0.12s ease-out;
 }
 .mascot-ear-left{
   left: 33.18%;
@@ -257,7 +254,6 @@ a{ color: inherit; }
   width: 20.91%;
   height: 41.54%;
   transform-origin: 55% 92%;
-  animation: chatterLeft 4.4s ease-in-out infinite;
 }
 .mascot-ear-right{
   left: 58.64%;
@@ -265,62 +261,38 @@ a{ color: inherit; }
   width: 21.82%;
   height: 41.54%;
   transform-origin: 45% 92%;
-  animation: chatterRight 4.4s ease-in-out infinite;
-  animation-delay: 0.18s;
-}
-@keyframes chatterLeft{
-  0%, 100%{ transform: rotate(0deg); }
-  8%{ transform: rotate(-3.2deg); }
-  16%{ transform: rotate(0.5deg); }
-  24%{ transform: rotate(-2deg); }
-  32%{ transform: rotate(0deg); }
-  100%{ transform: rotate(0deg); }
-}
-@keyframes chatterRight{
-  0%, 100%{ transform: rotate(0deg); }
-  9%{ transform: rotate(3.6deg); }
-  17%{ transform: rotate(-0.4deg); }
-  25%{ transform: rotate(2.2deg); }
-  33%{ transform: rotate(0deg); }
-  100%{ transform: rotate(0deg); }
-}
-.mascot-frame.snap .mascot-ear-left{ animation: none; transform: rotate(-11deg); transition: transform 0.09s ease-out; }
-.mascot-frame.snap .mascot-ear-right{ animation: none; transform: rotate(11deg); transition: transform 0.09s ease-out; }
-.mascot-frame.snap-back .mascot-ear-left{ animation: none; transform: rotate(0deg); transition: transform 0.28s cubic-bezier(.34,2.4,.4,1); }
-.mascot-frame.snap-back .mascot-ear-right{ animation: none; transform: rotate(0deg); transition: transform 0.28s cubic-bezier(.34,2.4,.4,1); }
-
-.crack-flash{
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.85);
-  opacity: 0;
-  pointer-events: none;
-  border-radius: 2px;
-}
-.crack-flash.flash{
-  animation: flashPulse 0.28s ease-out;
-}
-@keyframes flashPulse{
-  0%{ opacity: 0.8; }
-  100%{ opacity: 0; }
 }
 
-.flyer-sub{
+/* poke feedback: a brightness/saturation pop that follows the cutout's own
+   alpha silhouette (a plain overlay rectangle would show as a frame again) */
+.mascot-frame.flash .mascot-base,
+.mascot-frame.flash .mascot-ear{
+  filter: drop-shadow(0 26px 34px rgba(20,14,4,0.4)) brightness(1.55) saturate(1.25);
+}
+
+.hero-sub{
+  position: relative;
+  z-index: 3;
   font-family: var(--font-hand);
-  font-size: 19px;
-  color: var(--ink-soft);
-  margin: 16px 0 4px;
+  font-size: clamp(18px, 2.6vw, 23px);
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(250,244,228,0.4);
+  margin: 22px 0 4px;
 }
-.flyer-poke-hint{
+.hero-poke-hint{
+  position: relative;
+  z-index: 3;
   font-family: var(--font-type);
   font-size: 11px;
   letter-spacing: 0.06em;
-  color: rgba(44,36,24,0.5);
+  color: rgba(44,36,24,0.65);
   margin: 2px 0 0;
 }
 
 .ca-card{
-  margin-top: 22px;
+  position: relative;
+  z-index: 3;
+  margin-top: 24px;
   background: var(--ink);
   color: var(--paper);
   border-radius: 10px;
@@ -353,6 +325,8 @@ a{ color: inherit; }
 .ca-copy:hover{ background: var(--sticky-yellow); }
 
 .hero-actions{
+  position: relative;
+  z-index: 3;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -374,10 +348,28 @@ a{ color: inherit; }
 .btn-secondary{ background: var(--paper); color: var(--ink); }
 
 .crack-counter{
+  position: relative;
+  z-index: 3;
   margin-top: 16px;
   font-family: var(--font-type);
   font-size: 12px;
-  color: rgba(250,244,228,0.85);
+  color: var(--ink-soft);
+  text-shadow: 0 1px 0 rgba(250,244,228,0.4);
+}
+
+.hero-scroll-cue{
+  position: relative;
+  z-index: 3;
+  margin-top: 34px;
+  font-family: var(--font-type);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(44,36,24,0.55);
+  animation: scrollCueBob 2.2s ease-in-out infinite;
+}
+@keyframes scrollCueBob{
+  0%, 100%{ transform: translateY(0); opacity: 0.55; }
+  50%{ transform: translateY(6px); opacity: 0.9; }
 }
 
 /* ---------- index card (typed lore + sightings) ---------- */
@@ -698,9 +690,15 @@ a{ color: inherit; }
   .hamburger{ display: flex; }
 }
 
+@media (max-width: 700px){
+  /* thin out the busiest scatter shells so mobile hero doesn't feel cluttered */
+  .scatter:nth-child(4n){ display: none; }
+}
+
 @media (max-width: 560px){
-  .flyer{ padding: 20px 16px 16px; }
-  .flyer-heading{ font-size: 26px; }
+  .hero{ padding: 100px 16px 40px; }
+  .hero-heading{ font-size: 30px; }
+  .mascot-frame{ width: 94vw; }
   .board-section{ padding: 50px 16px; }
   .memo-card, .index-card{ padding: 22px 18px 18px; }
   .adopt-grid{ grid-template-columns: 1fr; }

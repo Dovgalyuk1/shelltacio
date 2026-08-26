@@ -49,40 +49,53 @@
 <main id="top">
 
   <section class="hero" id="hero">
-    <div class="hero-corkboard">
 
-      <div class="flyer-pin flyer-pin-1" aria-hidden="true"></div>
-      <div class="flyer-tape flyer-tape-l" aria-hidden="true"></div>
-      <div class="flyer-tape flyer-tape-r" aria-hidden="true"></div>
-
-      <div class="flyer">
-        <p class="flyer-heading">HAVE YOU SEEN HIM?</p>
-
-        <div class="mascot-frame" id="mascotFrame" role="button" tabindex="0" aria-label="Poke the shell">
-          <img class="mascot-base" src="assets/hero-base.jpg" alt="Shelltacio, a small green creature crying inside a cracked pistachio shell, sitting on a pile of shells, flies circling above">
-          <img class="mascot-ear mascot-ear-left" id="earLeft" src="assets/ear-left.png" alt="">
-          <img class="mascot-ear mascot-ear-right" id="earRight" src="assets/ear-right.png" alt="">
-          <div class="crack-flash" id="crackFlash" aria-hidden="true"></div>
-        </div>
-
-        <p class="flyer-sub">Cracked wrong. Never picked. Grew fond of the flies.</p>
-        <p class="flyer-poke-hint">poke the shell →</p>
-      </div>
-
-      <div class="ca-card">
-        <span class="ca-label">CONTRACT</span>
-        <span class="ca-value" id="caValue">COMING SOON — NOT MINTED YET</span>
-        <button class="ca-copy" id="caCopy">copy</button>
-      </div>
-
-      <div class="hero-actions">
-        <a class="btn btn-primary" id="buyBtn" href="#" target="_blank" rel="noopener">Buy $SHELLTACIO</a>
-        <a class="btn btn-secondary" id="chartBtn" href="#" target="_blank" rel="noopener">Chart</a>
-        <a class="btn btn-secondary" id="xBtn" href="#" target="_blank" rel="noopener">X / Twitter</a>
-      </div>
-
-      <p class="crack-counter" id="crackCounter">poked 0 times today</p>
+    <div class="shell-scatter" aria-hidden="true">
+      <img src="assets/scatter-2.png" class="scatter" style="top:6%; left:4%; width:70px; --r:-14deg; animation-delay:-1.2s;" alt="">
+      <img src="assets/scatter-5.png" class="scatter" style="top:14%; left:16%; width:100px; --r:9deg; animation-delay:-3.8s;" alt="">
+      <img src="assets/scatter-1.png" class="scatter" style="top:8%; right:10%; width:110px; --r:12deg; animation-delay:-2.1s;" alt="">
+      <img src="assets/scatter-7.png" class="scatter" style="top:20%; right:22%; width:75px; --r:-8deg; animation-delay:-5.4s;" alt="">
+      <img src="assets/scatter-4.png" class="scatter" style="top:2%; left:38%; width:55px; --r:20deg; animation-delay:-0.6s;" alt="">
+      <img src="assets/scatter-6.png" class="scatter" style="top:4%; right:38%; width:65px; --r:-18deg; animation-delay:-4.3s;" alt="">
+      <img src="assets/scatter-3.png" class="scatter" style="top:34%; left:3%; width:120px; --r:-6deg; animation-delay:-6.1s;" alt="">
+      <img src="assets/scatter-2.png" class="scatter" style="top:40%; right:3%; width:80px; --r:16deg; animation-delay:-2.9s;" alt="">
+      <img src="assets/scatter-1.png" class="scatter sc-front" style="bottom:6%; left:8%; width:130px; --r:-10deg; animation-delay:-1.7s;" alt="">
+      <img src="assets/scatter-5.png" class="scatter sc-front" style="bottom:4%; left:24%; width:90px; --r:14deg; animation-delay:-4.9s;" alt="">
+      <img src="assets/scatter-7.png" class="scatter sc-front" style="bottom:8%; right:26%; width:85px; --r:-15deg; animation-delay:-3.3s;" alt="">
+      <img src="assets/scatter-3.png" class="scatter sc-front" style="bottom:3%; right:6%; width:135px; --r:8deg; animation-delay:-0.2s;" alt="">
+      <img src="assets/scatter-4.png" class="scatter sc-front" style="bottom:14%; left:44%; width:60px; --r:-22deg; animation-delay:-5.9s;" alt="">
+      <img src="assets/scatter-6.png" class="scatter" style="top:60%; left:12%; width:70px; --r:11deg; animation-delay:-3.1s;" alt="">
+      <img src="assets/scatter-2.png" class="scatter" style="top:56%; right:12%; width:75px; --r:-9deg; animation-delay:-1.4s;" alt="">
+      <img src="assets/scatter-1.png" class="scatter" style="top:26%; left:22%; width:65px; --r:5deg; animation-delay:-4.6s;" alt="">
+      <img src="assets/scatter-5.png" class="scatter" style="top:30%; right:9%; width:70px; --r:-17deg; animation-delay:-2.5s;" alt="">
     </div>
+
+    <p class="hero-heading">HAVE YOU SEEN HIM?</p>
+
+    <div class="mascot-frame" id="mascotFrame" role="button" tabindex="0" aria-label="Poke the shell">
+      <img class="mascot-base" src="assets/hero-base.png" alt="Shelltacio, a small green creature crying inside a cracked pistachio shell, sitting on a pile of shells, flies circling above">
+      <img class="mascot-ear mascot-ear-left" id="earLeft" src="assets/ear-left.png" alt="">
+      <img class="mascot-ear mascot-ear-right" id="earRight" src="assets/ear-right.png" alt="">
+    </div>
+
+    <p class="hero-sub">Cracked wrong. Never picked. Grew fond of the flies.</p>
+    <p class="hero-poke-hint">poke the shell →</p>
+
+    <div class="ca-card">
+      <span class="ca-label">CONTRACT</span>
+      <span class="ca-value" id="caValue">COMING SOON — NOT MINTED YET</span>
+      <button class="ca-copy" id="caCopy">copy</button>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn btn-primary" id="buyBtn" href="#" target="_blank" rel="noopener">Buy $SHELLTACIO</a>
+      <a class="btn btn-secondary" id="chartBtn" href="#" target="_blank" rel="noopener">Chart</a>
+      <a class="btn btn-secondary" id="xBtn" href="#" target="_blank" rel="noopener">X / Twitter</a>
+    </div>
+
+    <p class="crack-counter" id="crackCounter">poked 0 times today</p>
+
+    <div class="hero-scroll-cue" aria-hidden="true">↓ scroll for the whole story</div>
   </section>
 
   <section class="board-section" id="lore">
